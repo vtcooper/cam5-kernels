@@ -15,6 +15,8 @@ pf    = addfile(ps_file, "r")
 
 
 plev_hPa=(/1000, 925, 850, 700, 600, 500, 400, 300, 250,  200, 150, 100, 70, 50, 30, 20, 10/)  ;; CMIP5 troposphere / stratosphere levels                 
+;plev_hPa=(/1000, 925, 850, 775, 700, 600, 500, 400, 300,  250, 200, 150,100, 70, 50, 30, 20, \
+    10,   7,   5,   3,   2,   1/)                                                     ;; GFDL pressure levels 
 plev:=plev_hPa*100 ; convert to Pa                                                                                                                          
 
 vinfofile="kernels/t.kernel.nc" ; We are using information about the coordinate system stored in this file. 
