@@ -67,20 +67,20 @@ varlist = ['FSDS','FSNS','Q','T','FLNS',
 #### SELECT CASES HERE
 path = '/glade/scratch/vcooper/processed/'
 
-External_switch = True ## False for CAM, True for GFDL
+External_switch = False ## False for CAM, True for GFDL
 strat_mask = False  ## True is default which masks stratosphere changes
-cs_linearity_test = False ## True only if doing clear-sky linearity test
+cs_linearity_test = True ## True only if doing clear-sky linearity test
 
 ## SELECT BASECASE
-# basecase = 'f2000climo_f19_f19_holo_3_23_23' ## CAM6
+basecase = 'f2000climo_f19_f19_holo_3_23_23' ## CAM6
 
 # basecase = 'f.e1221.F_2000_CAM5.f19_f19.LGMRholo.002' ## CAM5
 
-basecase = 'f.e1221.F_2000.f19_f19.LGMRholo.002' ## CAM4
+#basecase = 'f.e1221.F_2000.f19_f19.LGMRholo.002' ## CAM4
 #basecase = 'f.e1221.F_2000.f19_f19.LGMRholo.003' ## CAM4 v3
 
 ## SELECT CHANGECASE
-# case = 'f2000climo_f19_f19_2xco2by05_05'
+case = 'f2000climo_f19_f19_2xco2by05_05'
 # case = 'f2000climo_f19_f19_2xc02_05'
 # case = 'f2000climo_f19_f19_pattern_05'
 # case = 'f2000climo_f19_f19_LGMRby05_05_fixed'
@@ -105,7 +105,7 @@ basecase = 'f.e1221.F_2000.f19_f19.LGMRholo.002' ## CAM4
 # case = 'f.e1221.F_2000.f19_f19.amrhein.002.1'
 # case = 'f.e1221.F_2000.f19_f19.amrhein-0p5.002'
 # case = 'f.e1221.F_2000.f19_f19.annan-seasbyamr.002.1'
-case = 'f.e1221.F_2000.f19_f19.annan-0p5.002'
+# case = 'f.e1221.F_2000.f19_f19.annan-0p5.002'
 
 changecase = case
 print('basecase', basecase)
@@ -780,13 +780,13 @@ if (cs_linearity_test == True):
 
     ## compare this value with model FSNTC-FLNTC global and annual mean
     cs_kernel = (dLW_t_globalmean + dSW_alb_globalmean + dR_q_globalmean).values
-    print('Kernel CS Flux [W/m2/K]:', cs_kernel)
+    print('Kernel CS Flux [W/m2]:', cs_kernel)
     # print((dLW_lapserate_globalmean + dLW_planck_globalmean - dLW_t_globalmean).values)
 
     cs_true = (
         (changefile['FSNTC'] - changefile['FLNTC']).mean(
             dim='time') * weight).sum().values
-    print('Model CS Flux [W/m2/K]:', cs_true)
+    print('Model CS Flux [W/m2]:', cs_true)
     print('Error fraction:', cs_kernel / cs_true - 1)
     
     
