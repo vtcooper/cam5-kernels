@@ -28,7 +28,7 @@
 
 import warnings
 warnings.filterwarnings('ignore')
-
+import sys
 import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -45,6 +45,11 @@ import seaborn as sns
 
 import xesmf as xe
 
+# Check if a command-line argument is provided
+if len(sys.argv) < 2:
+    print("Error: Please provide a case name as an argument.")
+    print("Usage: python allkernel_enter.py <case_name>")
+    sys.exit(1)  # Exit the script if no argument is provided
 
 ## COMPUTE CLIMATOLOGY
 
@@ -73,12 +78,12 @@ cs_linearity_test = False ## True only if doing clear-sky linearity test
 
 ## SELECT BASECASE
 ## Derecho era
-# basecase = 'f.e215.F2000climoCAM5.f19_f19.LGMRholo.003' ## CAM5
+basecase = 'f.e215.F2000climoCAM5.f19_f19.LGMRholo.003' ## CAM5
 
 ## Cheyenne era
-basecase = 'f2000climo_f19_f19_holo_3_23_23' ## CAM6
+# basecase = 'f2000climo_f19_f19_holo_3_23_23' ## CAM6
 
-# basecase = 'f.e1221.F_2000_CAM5.f19_f19.LGMRholo.002' ## CAM5
+# basecase = 'f.e1221.F_2000_CAM5.f19_f19.LGMRholo.002' ## CAM5 OLD DONT USE
 
 # basecase = 'f.e1221.F_2000.f19_f19.LGMRholo.002' ## CAM4
 #basecase = 'f.e1221.F_2000.f19_f19.LGMRholo.003' ## CAM4 v3
@@ -87,11 +92,16 @@ basecase = 'f2000climo_f19_f19_holo_3_23_23' ## CAM6
 ## pliocene version
 # case = 'f.e215.F2000climo.f19_f19.tplio_vF'
 # case = 'f.e215.F2000climo.f19_f19.tplio_vFpliomip'
-case = 'f.e215.F2000climo.f19_f19.annanplio_v2.1'
+# case = 'f.e215.F2000climo.f19_f19.annanplio_v2.1'
+case = sys.argv[1]
 
 ## cam5
 # case = 'f.e215.F2000climoCAM5.f19_f19.tplio_vF'
 # case = 'f.e215.F2000climoCAM5.f19_f19.longrunmip.002'
+# case = 'f.e215.F2000climoCAM5.f19_f19.tplio_vFpliomip'
+# case = 'f.e215.F2000climoCAM5.f19_f19.tplio_vFcloud'
+# case = 'f.e215.F2000climoCAM5.f19_f19.tplio_vFpliovar'
+# case = 'f.e215.F2000climoCAM5.f19_f19.annanplio_v2.1'
 
 ## LGM vintage
 # case = 'f2000climo_f19_f19_2xco2by05_05'
