@@ -79,6 +79,7 @@ cs_linearity_test = False ## True only if doing clear-sky linearity test
 ## SELECT BASECASE
 ## Derecho era
 basecase = 'f.e215.F2000climoCAM5.f19_f19.LGMRholo.003' ## CAM5
+# basecase = 'f.e215.F2000climoCAM4.f19_f19.LGMRholo.003' ## CAM4
 
 ## Cheyenne era
 # basecase = 'f2000climo_f19_f19_holo_3_23_23' ## CAM6
@@ -93,7 +94,7 @@ basecase = 'f.e215.F2000climoCAM5.f19_f19.LGMRholo.003' ## CAM5
 # case = 'f.e215.F2000climo.f19_f19.tplio_vF'
 # case = 'f.e215.F2000climo.f19_f19.tplio_vFpliomip'
 # case = 'f.e215.F2000climo.f19_f19.annanplio_v2.1'
-case = sys.argv[1]
+case = sys.argv[1] # automatically assumes string, so enter f.e215.F2000climo.f19_f19.tplio
 
 ## cam5
 # case = 'f.e215.F2000climoCAM5.f19_f19.tplio_vF'
@@ -102,6 +103,18 @@ case = sys.argv[1]
 # case = 'f.e215.F2000climoCAM5.f19_f19.tplio_vFcloud'
 # case = 'f.e215.F2000climoCAM5.f19_f19.tplio_vFpliovar'
 # case = 'f.e215.F2000climoCAM5.f19_f19.annanplio_v2.1'
+# case = 'f.e215.F2000climoCAM5.f19_f19.tplio_vFneg05p'
+# case = 'f.e215.F2000climoCAM5.f19_f19.tplio_vFpos95p'
+
+## cam4
+# case = 'f.e215.F2000climoCAM4.f19_f19.tplio_vF'
+# case = 'f.e215.F2000climoCAM4.f19_f19.longrunmip.002'
+# case = 'f.e215.F2000climoCAM4.f19_f19.tplio_vFpliomip'
+# case = 'f.e215.F2000climoCAM4.f19_f19.annanplio_v2.1'
+# case = 'f.e215.F2000climoCAM4.f19_f19.tplio_vFpliovar'
+# case = 'f.e215.F2000climoCAM4.f19_f19.tplio_vFcloud'
+# case = 'f.e215.F2000climoCAM4.f19_f19.tplio_vFneg05p'
+# case = 'f.e215.F2000climoCAM4.f19_f19.tplio_vFpos95p'
 
 ## LGM vintage
 # case = 'f2000climo_f19_f19_2xco2by05_05'
