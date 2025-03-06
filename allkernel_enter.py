@@ -45,6 +45,8 @@ import seaborn as sns
 
 import xesmf as xe
 
+print('Warning: must use Plato conda environment')
+print('(otherwise, xr will load da instead of ds for pdiff)')
 # Check if a command-line argument is provided
 if len(sys.argv) < 2:
     print("Error: Please provide a case name as an argument.")
@@ -72,7 +74,7 @@ varlist = ['FSDS','FSNS','Q','T','FLNS',
 #### SELECT CASES HERE
 path = '/glade/derecho/scratch/vcooper/processed/'
 
-External_switch = False ## False for CAM, True for GFDL
+External_switch = True #True ## False for CAM, True for GFDL
 strat_mask = False  ## True is default which masks stratosphere changes 
 cs_linearity_test = False ## True only if doing clear-sky linearity test
 
@@ -148,6 +150,12 @@ changecase = case
 print('basecase', basecase)
 print('changecase', changecase)
 
+## dummy to avoid errors
+if External_switch == True:
+    casecopy = copy.deepcopy(case)
+    case = 'f.e215.F2000climoCAM5.f19_f19.tplio_vF' # dummy value, temporary
+    changecase = case
+
 ############### run script
 
 ## load in the full timeseries
@@ -192,25 +200,82 @@ if External_switch == False:
         {'month':'time','T':'temp','TS':'ts','lev':'lev_p'})
     
     
-## OPTION TO REPLACE CAM WITH EXTERNAL MODEL DATA
+############# OPTION TO REPLACE CAM WITH EXTERNAL MODEL DATA ###########
+gfdl2cesm_names = {
+    'level':'lev_p', ###
+    't_ref':'TREFHT',
+    't_surf':'ts', ##
+    'sphum':'Q',
+    'ps':'PS',
+    # 'temp':'T', ##
+    'ice_mask':'ICEFRAC',
+    'olr':'FLNT',
+    'olr_clr':'FLNTC',
+    'swdn_sfc_clr':'FSDSC',
+    'swdn_sfc':'FSDS'}
+
+def load_gfdlcase(casename): 
+    ## WARNING PATH IS NOT BULLETPROOF
+    path = '~/projects/plio_pattern/data/model_out/gfdl/' + casename + '/' 
+    fname = 'atmos.0002-0031.mon.nc'
+    varlist = ['land_mask', 'ice_mask', 'level', 't_ref', 't_surf',
+               'ps', 'temp', 'sphum',
+               'netrad_toa', 'swdn_toa', 'swup_toa', 'olr', 
+               'swdn_toa_clr', 'swup_toa_clr', 'olr_clr',
+               'lwdn_sfc', 'lwup_sfc', 'swdn_sfc', 'swup_sfc',
+               'lwdn_sfc_clr', 'lwup_sfc_clr', 'swdn_sfc_clr', 'swup_sfc_clr',
+              ]
+    ds = xr.open_dataset(path + fname)[varlist]
+    ds['FSNS'] = ds.swdn_sfc - ds.swup_sfc
+    ds['FSNT'] = ds.swdn_toa - ds.swup_toa
+    ds['FSNTC'] = ds.swdn_toa_clr - ds.swup_toa_clr
+    ds['FSNS']  = ds.swdn_sfc - ds.swup_sfc
+    ds['FLNS'] = -(ds.lwdn_sfc - ds.lwup_sfc)
+    ds['FLNSC'] = -(ds.lwdn_sfc_clr - ds.lwup_sfc_clr)
+    ds['FSNSC'] = ds.swdn_sfc_clr - ds.swup_sfc_clr
+    ds = ds.rename_dims(level='lev_p')
+    ds = ds.rename_vars(gfdl2cesm_names).squeeze()
+    
+    
+    # ds['SST'] = ds.TS.where((ds.ICEFRAC < 0.01) & (ds.land_mask < 0.01)) ## nan where there is ice
+    ds['SWCF'] =   ds.FSNT - ds.FSNTC ## for matching CESM outputs
+    ds['LWCF'] = -(ds.FLNT - ds.FLNTC)
+    return(ds)
+
+## New version for Pliocene
 if External_switch == True:
-    ## GFDL
-    path = '/glade/derecho/scratch/vcooper/processed/'
-
+    
     ## already in climatology form
-    basecase = xr.open_dataset(path + 'gfdl_holo/gfdl_holo.nc').rename(
-            {'T':'temp','TS':'ts','lev':'lev_p','swdn_sfc_clr':'FSDSC'})
-
-    #case = 'gfdl_2xCO2'
-    #changecase = xr.open_dataset(path + 'gfdl_2xCO2/gfdl_2xCO2.nc').rename(
-    #        {'T':'temp','TS':'ts','lev':'lev_p','swdn_sfc_clr':'FSDSC'})
-    case = 'gfdl_lgm'
-    changecase = xr.open_dataset(path + 'gfdl_lgm/gfdl_lgm.nc').rename(
-             {'T':'temp','TS':'ts','lev':'lev_p','swdn_sfc_clr':'FSDSC'})
+    basecase = load_gfdlcase('c96L33_am4p0_2010climo_holo')
+    changecase = load_gfdlcase(casecopy)
+    
+    basecase['lev_p'] = basecase['lev_p'].astype(int)
+    changecase['lev_p'] = changecase['lev_p'].astype(int)
+    pdiff_cmip = (pdiff.plev.values/100).astype(int)
     
     ## shortcut to select only the kernel CMIP pressure levels
-    basecase = basecase.sel(lev_p=pdiff.plev.values/100)
-    changecase = changecase.sel(lev_p=pdiff.plev.values/100)
+    basecase = basecase.sel(lev_p=pdiff_cmip)
+    changecase = changecase.sel(lev_p=pdiff_cmip)
+    case = sys.argv[1] # restore this so it saves as correct filename
+
+# if External_switch == True:
+#     ## GFDL
+#     path = '/glade/derecho/scratch/vcooper/processed/'
+
+#     ## already in climatology form
+#     basecase = xr.open_dataset(path + 'gfdl_holo/gfdl_holo.nc').rename(
+#             {'T':'temp','TS':'ts','lev':'lev_p','swdn_sfc_clr':'FSDSC'})
+
+#     #case = 'gfdl_2xCO2'
+#     #changecase = xr.open_dataset(path + 'gfdl_2xCO2/gfdl_2xCO2.nc').rename(
+#     #        {'T':'temp','TS':'ts','lev':'lev_p','swdn_sfc_clr':'FSDSC'})
+#     case = 'gfdl_lgm'
+#     changecase = xr.open_dataset(path + 'gfdl_lgm/gfdl_lgm.nc').rename(
+#              {'T':'temp','TS':'ts','lev':'lev_p','swdn_sfc_clr':'FSDSC'})
+    
+#     ## shortcut to select only the kernel CMIP pressure levels
+#     basecase = basecase.sel(lev_p=pdiff.plev.values/100)
+#     changecase = changecase.sel(lev_p=pdiff.plev.values/100)
     
 
 #### Regrid horizontal fields to match kernel 1 degree resolution
